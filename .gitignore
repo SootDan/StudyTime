@@ -1,0 +1,4 @@
+.venv/
+.git/
+workspace.code-workspace
+studytime.sqlite
