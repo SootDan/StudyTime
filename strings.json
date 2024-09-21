@@ -1,4 +1,6 @@
 {
     "create_subjects": "Looks like you haven't made a StudyTime yet.\nSelect the name and time required for each subject.",
-    "exit_create_subjects": "If done, type \"D\"."
+    "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\".",
+
+    "welcome_navigation": "Welcome! Select one of your subjects to input StudyTime by ID."
 }
