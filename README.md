@@ -19,7 +19,8 @@ My main goal for this app was creating easily readable and clean code. I focused
 I started out making an SQL database that sorted each subject into its own respective table. I noticed that the output strings were cluttering up my code, so I offloaded them to a json file. Then I formatted the SQL database into a readable string.  
 Cleaned the code and tried to optimise it into smaller, more readable bits. Made SQL more modular; it now supports multiple databases at the same time if needed.  
 Enums served to declutter the SQL within the code.  
-I added a German language option. At this point, I started experimenting with a basic GUI using Qt Designer with PyQt6. However, I still wanted to maintain a CLI version in case anybody preferred that. To do this, I started a major code refactoring process that lets both GUI and CLI import from the same code without repetition.
+I added a German language option. At this point, I started experimenting with a basic GUI using Qt Designer with PyQt6. However, I still wanted to maintain a CLI version in case anybody preferred that. To do this, I started a major code refactoring process that lets both GUI and CLI import from the same code without repetition.  
+I decided to switch to pandas at this point.  
   
 ### Creator
 This project is created and maintained solely by myself.  
@@ -29,4 +30,5 @@ This project is created and maintained solely by myself.
 [SQLite Python Documentation](https://docs.python.org/3/library/sqlite3.html)  
 [SQLite Time Documentation](https://www.sqlite.org/lang_datefunc.html)  
 [Glob Documentation](https://docs.python.org/3/library/glob.html#glob.escape)  
+[Pandas Documentation](https://pandas.pydata.org/pandas-docs/stable/reference/general_functions.html)  
 [QtDesigner Tutorial](https://youtu.be/tJQdfwAohlw?si=7eDugUCnUDzqasO2)  

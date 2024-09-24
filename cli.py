@@ -1,40 +1,38 @@
 """
-Handles the table and SQL queries.
+CLI version of the app.
 """
 from datetime import date   # Converts current time to ISO 8601 for SQL.
-from enum import Enum   # Eases access to SQL and further decluttering.
-from glob import glob   # Finds SQLite files
-from json import load   # Imports strings to be used in the program; keeps code clean.
-from sqlite3 import Connection, Cursor, connect, PARSE_DECLTYPES    # Database
+from script import App, Settings, SQLEnum
 
 
-class StudyTime:
+class StudyTime(App):
     """
     The app.
     """
     def __init__(self) -> None:
-        self.connection: Connection
-        self.cursor: Cursor
-        self.files_db: list[str] = glob("*.sqlite")
-        self.sql_commands: Enum = Enum("SQLEnum", ["SUBJECTS"])
-        self.subjects: list[Cursor]
+        super().__init__()
+        self.initialize_app()
 
 
     def initialize_app(self) -> None:
         """
         Initializes/creates SQL databank. User can select which one they want to use and name it.
         """
-        if len(self.files_db) == 0:
+        if self.language == "default":
+            print(self.json_handler("select_language"))
+            select = input()
+            self.language = self.json_handler(select, True, Settings.LANGUAGE)
+
+        if len(self.files) == 0:
             print("Welcome! Looks like this is the first time you started StudyTime.")
             db_name: str = input("Insert File Name: ")
         else:
             print("Choose which file you want to see and edit.")
-            #TODO: Clean user input and streamline databank selection
-            db_name: str = input(f"{self.files_db}: ")
+            db_name = ""
+            while len(db_name) > 12 or not db_name.isalpha():
+                db_name: str = input(f"{self.files}: ")
 
-        self.connection = connect(f"{db_name}.sqlite", detect_types=PARSE_DECLTYPES)
-        self.cursor: Cursor = self.connection.cursor()
-        self.subjects: list[Cursor] = self.sql_parser("SUBJECTS")
+        self.connect_to_db(db_name)
         self.initialize_module()
 
 
@@ -55,24 +53,29 @@ class StudyTime:
         """
         Navigates the app and lets the user edit and manipulate data.
         """
-        #TODO: Clean user input and implement method
-        self.json_strings("welcome_navigation")
-        db_id: int = int(input("ID: "))
-        subj_current: list[Cursor] = self.sql_parser("SUBJECTS")[db_id][0]
-        print(subj_current)
+        print(self.json_handler("db_navigation"))
+        db_id: int = -1
+        while db_id < 0 or db_id >= len(self.subjects):
+            try:
+                db_id: int = int(input("ID: "))
+            except ValueError:
+                print("Error: Must be an integer!")
+
+        subj_current: list[super.Cursor] = self.sql_handler(SQLEnum.SUBJECTS)[db_id][0]
+        # TODO: Implement navigator
 
 
     def create_subjects(self) -> None:
         """
         Creates the study subjects and loads them into code.
         """
-        self.json_strings("create_subjects")
+        self.json_handler("create_subjects")
         subj_name: str = ""
         subj_time: float = 0.0
         subjects: dict[str, float] = {}
 
         while True:
-            self.json_strings("exit_create_subjects")
+            self.json_handler("exit_create_subjects")
             subj_name: str = input("Name: ")
             if subj_name.upper() == "D":    # Done
                 break
@@ -80,8 +83,12 @@ class StudyTime:
                 rm_key: dict = list(subjects)[-1]
                 subjects.pop(rm_key)
             else:
-                #TODO: Clean user input
-                subj_time: float = float(input("Time (in hours): "))
+                subj_time = -1.0
+                while subj_time < 0.0:
+                    try:
+                        subj_time: float = float(input("Time (in hours): "))
+                    except ValueError:
+                        print("Error: Must be a floating point number!")
                 subjects.update({subj_name: subj_time})
 
         for subj_name, time_req in subjects.items():
@@ -113,24 +120,4 @@ class StudyTime:
             i += 1
 
 
-    def json_strings(self, message: str, lang: str = "enUS") -> None:
-        """
-        Transfers the json strings to the code to stop clutter.
-        Takes from the given language (default: enUS).
-        """
-        with open("strings.json", "r", encoding="utf-8") as json:
-            print(load(json)[lang][0].get(message))
-
-
-    def sql_parser(self, command: Enum) -> list[Cursor]:
-        """
-        SQL command handler.
-        """
-        if command == "SUBJECTS":
-            return self.cursor.execute("""SELECT name FROM sqlite_master
-            WHERE NOT name=\"sqlite_sequence\"""").fetchall()
-        return []
-
-
 study_time = StudyTime()
-study_time.initialize_app()

@@ -1,25 +1,33 @@
 {
-    "create_subjects": "Looks like you haven't made a study itinerary yet.\nSelect the name and time required for each subject.",
-    "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\".",
-    "welcome_navigation": "Welcome! Select one of your subjects to input StudyTime by ID.",
+    "settings": {
+        "0": {
+            "language":"enUS",
+            "select_language":"Select deDE or enUS as languages."
+        }
+    },
 
-    "default": [
-
-    ],
-
-    "enUS": [
+    "default": {
+        "0":
         {
-            "welcome_navigation": "Welcome! Select one of your subjects to input StudyTime by ID.",
+            "select_language":"Select deDE or enUS as languages."
+        }
+    },
+
+    "enUS": {
+        "0": {
+            "first_time_use": "Welcome! Looks like this is the first time you started StudyTime.",
+            "db_navigation": "Select one of your subjects to input StudyTime by ID.",
             "create_subjects": "Looks like you haven't made a study itinerary yet.\nSelect the name and time required for each subject.",
             "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\"."
         }
-    ],
+    },
 
-    "deDE": [
-        {
-            "welcome_navigation": "welcome_navigation DE",
-            "create_subjects": "create_subjects DE",
-            "exit_create_subjects": "exit_create_subjects DE"
+    "deDE": {
+        "0": {
+            "first_time_use": "first_time_use DE",
+            "db_navigation":"db_navigation DE",
+            "create_subjects":"create_subjects DE",
+            "exit_create_subjects":"exit_create_subjects DE"
         }
-    ]
+    }
 }

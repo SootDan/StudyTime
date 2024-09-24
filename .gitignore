@@ -1,6 +1,6 @@
 .venv/
 .git/
 Test/
+__pycache__/
 workspace.code-workspace
-studytime.sqlite
 *.sqlite
