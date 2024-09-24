@@ -1,4 +1,6 @@
 .venv/
 .git/
+Test/
 workspace.code-workspace
 studytime.sqlite
+*.sqlite

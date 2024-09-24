@@ -1,30 +1,50 @@
 """
 Handles the table and SQL queries.
 """
-from sqlite3 import Connection, Cursor, connect, PARSE_DECLTYPES    # Database
 from datetime import date   # Converts current time to ISO 8601 for SQL.
-from json import load   # Imports strings to be used in the program; keeps code clean.
 from enum import Enum   # Eases access to SQL and further decluttering.
-#from pandas import read_sql_query  # Formats SQL tables into readable strings.
+from glob import glob   # Finds SQLite files
+from json import load   # Imports strings to be used in the program; keeps code clean.
+from sqlite3 import Connection, Cursor, connect, PARSE_DECLTYPES    # Database
+
 
 class StudyTime:
     """
     The app.
     """
-    def __init__(self, db: str) -> None:
-        self.connection: Connection = connect(f"{db}.sqlite", detect_types=PARSE_DECLTYPES)
-        self.cursor: Cursor = self.connection.cursor()
+    def __init__(self) -> None:
+        self.connection: Connection
+        self.cursor: Cursor
+        self.files_db: list[str] = glob("*.sqlite")
         self.sql_commands: Enum = Enum("SQLEnum", ["SUBJECTS"])
-        self.subjects: list[Cursor] = self.sql_parser("SUBJECTS")
+        self.subjects: list[Cursor]
 
 
     def initialize_app(self) -> None:
         """
-        Initializes/creates the SQL databank and adds all subjects into a list.
+        Initializes/creates SQL databank. User can select which one they want to use and name it.
+        """
+        if len(self.files_db) == 0:
+            print("Welcome! Looks like this is the first time you started StudyTime.")
+            db_name: str = input("Insert File Name: ")
+        else:
+            print("Choose which file you want to see and edit.")
+            #TODO: Clean user input and streamline databank selection
+            db_name: str = input(f"{self.files_db}: ")
+
+        self.connection = connect(f"{db_name}.sqlite", detect_types=PARSE_DECLTYPES)
+        self.cursor: Cursor = self.connection.cursor()
+        self.subjects: list[Cursor] = self.sql_parser("SUBJECTS")
+        self.initialize_module()
+
+
+    def initialize_module(self) -> None:
+        """
+        Initializes/creates the selected SQL databank and adds all subjects into a list.
         """
         if len(self.subjects) == 0:
             self.create_subjects()
-            self.initialize_app()
+            self.initialize_module()
         else:
             self.load_subjects()
 
@@ -93,12 +113,13 @@ class StudyTime:
             i += 1
 
 
-    def json_strings(self, message: str) -> None:
+    def json_strings(self, message: str, lang: str = "enUS") -> None:
         """
         Transfers the json strings to the code to stop clutter.
+        Takes from the given language (default: enUS).
         """
         with open("strings.json", "r", encoding="utf-8") as json:
-            print(load(json).get(message))
+            print(load(json)[lang][0].get(message))
 
 
     def sql_parser(self, command: Enum) -> list[Cursor]:
@@ -108,9 +129,8 @@ class StudyTime:
         if command == "SUBJECTS":
             return self.cursor.execute("""SELECT name FROM sqlite_master
             WHERE NOT name=\"sqlite_sequence\"""").fetchall()
-        else:
-            return []
+        return []
 
 
-study_time = StudyTime("studytime")
+study_time = StudyTime()
 study_time.initialize_app()

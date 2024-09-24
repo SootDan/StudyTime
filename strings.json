@@ -1,6 +1,25 @@
 {
-    "create_subjects": "Looks like you haven't made a StudyTime yet.\nSelect the name and time required for each subject.",
+    "create_subjects": "Looks like you haven't made a study itinerary yet.\nSelect the name and time required for each subject.",
     "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\".",
+    "welcome_navigation": "Welcome! Select one of your subjects to input StudyTime by ID.",
 
-    "welcome_navigation": "Welcome! Select one of your subjects to input StudyTime by ID."
+    "default": [
+
+    ],
+
+    "enUS": [
+        {
+            "welcome_navigation": "Welcome! Select one of your subjects to input StudyTime by ID.",
+            "create_subjects": "Looks like you haven't made a study itinerary yet.\nSelect the name and time required for each subject.",
+            "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\"."
+        }
+    ],
+
+    "deDE": [
+        {
+            "welcome_navigation": "welcome_navigation DE",
+            "create_subjects": "create_subjects DE",
+            "exit_create_subjects": "exit_create_subjects DE"
+        }
+    ]
 }
