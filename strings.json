@@ -16,6 +16,8 @@
     "enUS": {
         "0": {
             "first_time_use": "Welcome! Looks like this is the first time you started StudyTime.",
+            "db_choose_file": "Choose which file you want to see and edit.",
+            "db_create_name": "Insert File Name: ",
             "db_navigation": "Select one of your subjects to input StudyTime by ID.",
             "create_subjects": "Looks like you haven't made a study itinerary yet.\nSelect the name and time required for each subject.",
             "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\"."
@@ -25,6 +27,8 @@
     "deDE": {
         "0": {
             "first_time_use": "first_time_use DE",
+            "db_choose_file": "db_choose_file DE",
+            "db_create_name": "db_create_name DE",
             "db_navigation":"db_navigation DE",
             "create_subjects":"create_subjects DE",
             "exit_create_subjects":"exit_create_subjects DE"

@@ -11,41 +11,27 @@ class StudyTime(App):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.initialize_app()
 
-
-    def initialize_app(self) -> None:
-        """
-        Initializes/creates SQL databank. User can select which one they want to use and name it.
-        """
+        # Initializes/creates SQL file. User can select which one they want to use and name it.
         if self.language == "default":
             print(self.json_handler("select_language"))
             select = input()
             self.language = self.json_handler(select, True, Settings.LANGUAGE)
 
         if len(self.files) == 0:
-            print("Welcome! Looks like this is the first time you started StudyTime.")
-            db_name: str = input("Insert File Name: ")
+            print(self.json_handler("first_time_use"))
+            db_name: str = input(self.json_handler("db_create_name"))
         else:
-            print("Choose which file you want to see and edit.")
+            print(self.json_handler("db_choose_file"))
             db_name = ""
             while len(db_name) > 12 or not db_name.isalpha():
-                db_name: str = input(f"{self.files}: ")
-
+                db_name: str = input(f"{", ".join(self.files)}: ")
         self.connect_to_db(db_name)
-        self.initialize_module()
 
-
-    def initialize_module(self) -> None:
-        """
-        Initializes/creates the selected SQL databank and adds all subjects into a list.
-        """
+        # Initializes/creates the selected SQL databank and adds all subjects into a list.
         if len(self.subjects) == 0:
             self.create_subjects()
-            self.initialize_module()
-        else:
-            self.load_subjects()
-
+        self.load_subjects()
         self.app_navigator()
 
 
