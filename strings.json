@@ -1,15 +1,13 @@
 {
     "settings": {
         "0": {
-            "language":"enUS",
-            "select_language":"Select deDE or enUS as languages."
+            "language":"enUS"
         }
     },
 
     "default": {
-        "0":
-        {
-            "select_language":"Select deDE or enUS as languages."
+        "0": {
+            "select_language":"Select deDE or enUS as languages.\n"
         }
     },
 
@@ -20,7 +18,9 @@
             "db_create_name": "Insert File Name: ",
             "db_navigation": "Select one of your subjects to input StudyTime by ID.",
             "create_subjects": "Looks like you haven't made a study itinerary yet.\nSelect the name and time required for each subject.",
-            "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\"."
+            "exit_create_subjects": "If done, type \"D\". If you made a mistake, type \"M\".",
+            "error_int": "Error: Must be an integer!",
+            "error_float": "Error: Must be a floating point number!"
         }
     },
 
@@ -31,7 +31,9 @@
             "db_create_name": "db_create_name DE",
             "db_navigation":"db_navigation DE",
             "create_subjects":"create_subjects DE",
-            "exit_create_subjects":"exit_create_subjects DE"
+            "exit_create_subjects":"exit_create_subjects DE",
+            "error_int": "error_integer DE",
+            "error_float": "error_float DE"
         }
     }
 }

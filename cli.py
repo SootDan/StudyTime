@@ -1,7 +1,8 @@
 """
 CLI version of the app.
 """
-from datetime import date   # Converts current time to ISO 8601 for SQL.
+from datetime import date
+from pandas import DataFrame
 from script import App, Settings, SQLEnum
 
 
@@ -14,16 +15,15 @@ class StudyTime(App):
 
         # Initializes/creates SQL file. User can select which one they want to use and name it.
         if self.language == "default":
-            print(self.json_handler("select_language"))
-            select = input()
+            select = input(self.json_handler("select_language"))
             self.language = self.json_handler(select, True, Settings.LANGUAGE)
 
+        db_name: str = ""
         if len(self.files) == 0:
             print(self.json_handler("first_time_use"))
-            db_name: str = input(self.json_handler("db_create_name"))
+            db_name = input(self.json_handler("db_create_name"))
         else:
             print(self.json_handler("db_choose_file"))
-            db_name = ""
             while len(db_name) > 12 or not db_name.isalpha():
                 db_name: str = input(f"{", ".join(self.files)}: ")
         self.connect_to_db(db_name)
@@ -45,9 +45,9 @@ class StudyTime(App):
             try:
                 db_id: int = int(input("ID: "))
             except ValueError:
-                print("Error: Must be an integer!")
+                print(self.json_handler("error_int"))
 
-        subj_current: list[super.Cursor] = self.sql_handler(SQLEnum.SUBJECTS)[db_id][0]
+        subj_current: list[super.Cursor] = self.sql_handler(SQLEnum.SELECT_SUBJECTS)[db_id][0]
         # TODO: Implement navigator
 
 
@@ -62,7 +62,7 @@ class StudyTime(App):
 
         while True:
             self.json_handler("exit_create_subjects")
-            subj_name: str = input("Name: ")
+            subj_name: str = input("Subject Name: ")
             if subj_name.upper() == "D":    # Done
                 break
             if subj_name.upper() == "M":    # Mistake
@@ -74,36 +74,47 @@ class StudyTime(App):
                     try:
                         subj_time: float = float(input("Time (in hours): "))
                     except ValueError:
-                        print("Error: Must be a floating point number!")
+                        print(self.json_handler("error_float"))
                 subjects.update({subj_name: subj_time})
+                #TODO: Add Deadlines
+                wants_deadline: bool = input("Would you like to enter a deadline? True / False\n")
+                #subjects.update({"deadline": wants_deadline})
 
         for subj_name, time_req in subjects.items():
-            self.cursor.execute(f"""CREATE TABLE {subj_name}
-            (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date DATE, time FLOAT)""")
-            self.cursor.execute(f"INSERT INTO {subj_name} VALUES (?, ?, ?)", \
-                (None, date.today(), time_req))
+            self.sql_handler(SQLEnum.CREATE_TABLE, subj_name)
+            self.sql_handler(SQLEnum.INSERT_SUBJECTS_REQ_TIME, [subj_name, time_req])
         self.connection.commit()
 
 
     def load_subjects(self) -> None:
         """
-        Loads the subjects and stats into the code.
+        Loads the subjects and stats and formats them.
         """
+        data: list = []
         i: int = 0
         for subject in self.subjects:
-            subj_name: str = f"{subject[0]} (ID: {i})"
-            subj_time_req: float = self.cursor.execute(f"SELECT time FROM {subject[0] \
-                } WHERE id=1").fetchone()[0]
-            subj_time_spent: float = self.cursor.execute(f"SELECT SUM(time) FROM {subject[0] \
-                } WHERE NOT id=1").fetchone()[0]
-            subj_time_spent = subj_time_spent if subj_time_spent is not None else 0.0
+            subj_name: str = subject[0]
+            subj_time_req: float = self.sql_handler(SQLEnum.SELECT_SUBJECTS_REQ_TIME, subj_name)
+            subj_time_done: float = self.sql_handler(SQLEnum.SELECT_SUBJECTS_DONE_TIME, subj_name)
+            subj_time_done = subj_time_done if subj_time_done is not None else 0.0
+            subj_time_left: float = subj_time_req - subj_time_done
+            subj_deadline = self.sql_handler(SQLEnum.SELECT_SUBJECTS_DEADLINE, subj_name)
 
-            print(f"SUBJECT:\t\t{subj_name}")
-            print(f"HOURS REQUIRED:\t\t{subj_time_req} HOURS")
-            print(f"HOURS SPENT:\t\t{subj_time_spent} HOURS")
-            print(f"HOURS LEFT:\t\t{subj_time_req - subj_time_spent} HOURS")
-            print("############\t\t############")
+            data.append({
+                "ID": i,
+                "Subject": subj_name,
+                "Hrs Left": f"{subj_time_left} ({subj_time_req})",
+                "Hrs Spent": subj_time_done,
+                "Hrs/Day": subj_time_left / float((subj_deadline - date.today()).days),
+                "Hrs/Week": subj_time_left / float((subj_deadline - date.today()).days) * 7.0,
+                "Hrs/Month": subj_time_left / float((subj_deadline - date.today()).days) * 30.0,
+                "Deadline": subj_deadline,
+            })
             i += 1
+        data_frame: DataFrame = DataFrame(data)
+        data_frame.set_index("ID", inplace=True)
+        data_frame.index.name = "ID"
+        print(data_frame)
 
 
 study_time = StudyTime()
