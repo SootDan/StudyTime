@@ -1,8 +1,7 @@
 """
 CLI version of the app.
 """
-from datetime import date
-from pandas import DataFrame
+from pandas import DataFrame, concat
 from script import App, Settings, SQLEnum
 
 
@@ -75,14 +74,18 @@ class StudyTime(App):
                         subj_time: float = float(input("Time (in hours): "))
                     except ValueError:
                         print(self.json_handler("error_float"))
-                subjects.update({subj_name: subj_time})
-                #TODO: Add Deadlines
-                wants_deadline: bool = input("Would you like to enter a deadline? True / False\n")
-                #subjects.update({"deadline": wants_deadline})
+
+                deadline: str = input("Would you like to enter a deadline? Y / N\n").upper()
+                if deadline == "Y":
+                    deadline: str = input("Set Deadline (YYYY-MM-DD): ")
+                else:
+                    deadline = None
+                subjects.update({subj_name: [subj_time, deadline]})
 
         for subj_name, time_req in subjects.items():
             self.sql_handler(SQLEnum.CREATE_TABLE, subj_name)
-            self.sql_handler(SQLEnum.INSERT_SUBJECTS_REQ_TIME, [subj_name, time_req])
+            self.sql_handler(SQLEnum.INSERT_SUBJECTS_REQ_TIME, [
+                subj_name, time_req[0], time_req[1]])
         self.connection.commit()
 
 
@@ -101,19 +104,21 @@ class StudyTime(App):
             subj_deadline = self.sql_handler(SQLEnum.SELECT_SUBJECTS_DEADLINE, subj_name)
 
             data.append({
-                "ID": i,
                 "Subject": subj_name,
-                "Hrs Left": f"{subj_time_left} ({subj_time_req})",
+                "Hrs Left": f"{subj_time_left} ({ \
+                    subj_time_req})" if subj_time_left != subj_time_req else subj_time_left,
                 "Hrs Spent": subj_time_done,
-                "Hrs/Day": subj_time_left / float((subj_deadline - date.today()).days),
-                "Hrs/Week": subj_time_left / float((subj_deadline - date.today()).days) * 7.0,
-                "Hrs/Month": subj_time_left / float((subj_deadline - date.today()).days) * 30.0,
+                "Hrs/D": self.statistics_calc("days", subj_time_left, subj_deadline),
+                "Hrs/Wk": self.statistics_calc("weeks", subj_time_left, subj_deadline),
+                "Hrs/Mo": self.statistics_calc("months", subj_time_left, subj_deadline),
                 "Deadline": subj_deadline,
             })
             i += 1
         data_frame: DataFrame = DataFrame(data)
-        data_frame.set_index("ID", inplace=True)
-        data_frame.index.name = "ID"
+        data_total: list[float] = data_frame[["Hrs Left", "Hrs Spent"]].sum()
+        data_total_frame = DataFrame([data_total], columns=data_total.index)
+        data_total_frame.insert(1, "Subject", "Total")
+        data_frame = concat([data_frame, data_total_frame], ignore_index=True)
         print(data_frame)
 
 

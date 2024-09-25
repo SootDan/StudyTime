@@ -58,6 +58,23 @@ class App:
         self.subjects: list[Cursor] = self.sql_handler(SQLEnum.SELECT_SUBJECTS)
 
 
+    def statistics_calc(self, time_unit: str, hours_left: float, deadline: date) -> float:
+        """
+        Calculates how much average time is needed each day/week/month.
+        Has a max value if the average time exceeds the left hours spent to study.
+        """
+        if deadline is None:
+            return "N/A"
+
+        i: float = hours_left / float((deadline - date.today()).days)
+        match time_unit:
+            case "weeks":
+                i *= 7.0
+            case "months":
+                i *= 30.0
+        return round(i, 2) if not i >= hours_left else hours_left
+
+
     def sql_handler(self, command: SQLEnum, arg: list = None) -> list[Cursor]:
         """
         SQL command handler. See SQLEnum for further information.
@@ -82,14 +99,13 @@ class App:
             case SQLEnum.SELECT_SUBJECTS_DONE_TIME:
                 return self.cursor.execute(
                     f"SELECT SUM(time) FROM {arg} WHERE NOT id=1").fetchone()[0]
-
             case SQLEnum.SELECT_SUBJECTS_DEADLINE:
                 return self.cursor.execute(
                     f"SELECT deadline FROM Meta WHERE subject=\"{arg}\"").fetchone()[0]
 
             case SQLEnum.INSERT_SUBJECTS_REQ_TIME:
                 self.cursor.execute(
-                    "INSERT INTO Meta VALUES (?, ?, ?, ?)", (None, arg[0], arg[1], date.today()))
+                    "INSERT INTO Meta VALUES (?, ?, ?, ?)", (None, arg[0], arg[1], arg[2]))
             case _:
                 return []
 
