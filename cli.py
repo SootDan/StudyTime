@@ -47,6 +47,10 @@ class StudyTime(App):
                 print(self.json_handler("error_int"))
 
         subj_current: list[super.Cursor] = self.sql_handler(SQLEnum.SELECT_SUBJECTS)[db_id][0]
+        user = input(f"Press \"Y\" if you want to add some study time to subject {subj_current}.").upper()
+        if user == "Y":
+            user = float(input(f"Add the amount of time in minutes.")) / 60.0
+            self.sql_handler(SQLEnum.INSERT_SUBJECT_STUDY_TIME, [subj_current[0], user])
         # TODO: Implement navigator
 
 
@@ -86,7 +90,6 @@ class StudyTime(App):
             self.sql_handler(SQLEnum.CREATE_TABLE, subj_name)
             self.sql_handler(SQLEnum.INSERT_SUBJECTS_REQ_TIME, [
                 subj_name, time_req[0], time_req[1]])
-        self.connection.commit()
 
 
     def load_subjects(self) -> None:
@@ -115,7 +118,8 @@ class StudyTime(App):
             })
             i += 1
         data_frame: DataFrame = DataFrame(data)
-        data_total: list[float] = data_frame[["Hrs Left", "Hrs Spent"]].sum()
+        data_total: list[float] = data_frame[["Hrs Left", "Hrs Spent",
+        "Hrs/D", "Hrs/Wk", "Hrs/Mo"]].sum(numeric_only=True)
         data_total_frame = DataFrame([data_total], columns=data_total.index)
         data_total_frame.insert(1, "Subject", "Total")
         data_frame = concat([data_frame, data_total_frame], ignore_index=True)

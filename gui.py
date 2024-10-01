@@ -20,4 +20,6 @@ if __name__ == "__main__":
     app = QApplication(argv)
     ui = MainUI()
     ui.show()
+
+    #ui.
     app.exec()

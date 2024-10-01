@@ -26,6 +26,7 @@ class SQLEnum(Enum):
     SELECT_SUBJECTS_DEADLINE = Selects deadline of one subject
     SELECT_SUBJECTS_DONE_TIME = Selects already studied time (0.0 if none)
     INSERT_SUBJECTS_REQ_TIME = Inserts required time for a subject
+    INSERT_SUBJECT_STUDY_TIME = Inserts time studied by the user
     """
     NONE = -1
     CREATE_TABLE = 0
@@ -34,6 +35,7 @@ class SQLEnum(Enum):
     SELECT_SUBJECTS_DONE_TIME = 3
     SELECT_SUBJECTS_DEADLINE = 4
     INSERT_SUBJECTS_REQ_TIME = 5
+    INSERT_SUBJECT_STUDY_TIME = 6
 
 
 class App:
@@ -98,7 +100,7 @@ class App:
                     f"SELECT time_req FROM Meta WHERE subject=\"{arg}\"").fetchone()[0]
             case SQLEnum.SELECT_SUBJECTS_DONE_TIME:
                 return self.cursor.execute(
-                    f"SELECT SUM(time) FROM {arg} WHERE NOT id=1").fetchone()[0]
+                    f"SELECT SUM(time) FROM {arg}").fetchone()[0]
             case SQLEnum.SELECT_SUBJECTS_DEADLINE:
                 return self.cursor.execute(
                     f"SELECT deadline FROM Meta WHERE subject=\"{arg}\"").fetchone()[0]
@@ -106,8 +108,14 @@ class App:
             case SQLEnum.INSERT_SUBJECTS_REQ_TIME:
                 self.cursor.execute(
                     "INSERT INTO Meta VALUES (?, ?, ?, ?)", (None, arg[0], arg[1], arg[2]))
+            case SQLEnum.INSERT_SUBJECT_STUDY_TIME:
+                print(f"{arg[0]} {arg[1]}")
+                self.cursor.execute(
+                    f"INSERT INTO {arg[0]} VALUES (?, ?, ?)", (None, date.today(), arg[1])
+                )
             case _:
                 return []
+        self.connection.commit()
 
 
     def json_handler(self, str_input: str, is_setting: bool = False,
